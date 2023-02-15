@@ -12,40 +12,53 @@ end
 function message_handler(msg)
     -- print(msg)
     -- print("aaa")
-    if string.find(msg.text, "silence_start") then
-        detected_silence = true
-        mp.set_property("speed", original_speed * 5)
-        print("silence_start")
-    elseif string.find(msg.text, "silence_end") then
-        detected_silence = false
-        mp.set_property("speed", original_speed)
-        print("silence_end")
+    -- check if msg.text starts with silencedetect
+    -- if string.sub(msg.text, 1, 13) == "silencedetect" then
+    --     print(msg.prefix)
+    -- end
+    -- if msg.prefix == "silencedetect" then
+    --     print(msg.text)
+    -- end
+    if msg.prefix == "ffmpeg" then
+        print(msg.text)
     end
+
+
+    -- if string.find(msg.text, "silence_start") and detected_silence == false then
+    --     detected_silence = true
+    --     mp.set_property("speed", original_speed * 5)
+    --     print("silence_start")
+    -- elseif string.find(msg.text, "silence_end") and detected_silence then
+    --     detected_silence = false
+    --     mp.set_property("speed", original_speed)
+    --     print("silence_end")
+    -- end
 end
 
 function toggle_filters()
-    -- apply compression
-    local compression_filter = "compand=0|0:1|1:-90/-900|-70/-70|-30/-9|0/-3:6:0:0:0"
-    mp.command("af toggle lavfi=[" .. compression_filter .. "]")
+    -- -- apply compression
+    -- local compression_filter = "compand=0|0:1|1:-90/-900|-70/-70|-30/-9|0/-3:6:0:0:0"
+    -- mp.command("af toggle lavfi=[" .. compression_filter .. "]")
 
-    local message = ""
-    if string.find(mp.get_property("af"), "compand") then
-        message = message .. " compression on"
-    else
-        message = message .. " compression off"
-    end
+    -- local message = ""
+    -- if string.find(mp.get_property("af"), "compand") then
+    --     message = message .. " compression on"
+    -- else
+    --     message = message .. " compression off"
+    -- end
 
-    -- apply noise gate
-    local noise_gate_filter = "dynaudnorm=g=11"
-    mp.command("af toggle lavfi=[" .. noise_gate_filter .. "]")
+    -- -- apply noise gate
+    -- local noise_gate_filter = "dynaudnorm=g=11"
+    -- mp.command("af toggle lavfi=[" .. noise_gate_filter .. "]")
 
-    if string.find(mp.get_property("af"), "dynaudnorm") then
-        message = message .. ", noise gate on"
-    else
-        message = message .. ", noise gate off"
-    end
+    -- if string.find(mp.get_property("af"), "dynaudnorm") then
+    --     message = message .. ", noise gate on"
+    -- else
+    --     message = message .. ", noise gate off"
+    -- end
 
     -- apply silencedetect
+    message = ""
     mp.set_property("af", "silencedetect=n=-20dB:d=1")
 
     if string.find(mp.get_property("af"), "silencedetect") then
