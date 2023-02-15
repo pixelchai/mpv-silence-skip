@@ -10,29 +10,26 @@ function test()
 end
 
 function message_handler(msg)
-    -- print(msg)
-    -- print("aaa")
-    -- check if msg.text starts with silencedetect
-    -- if string.sub(msg.text, 1, 13) == "silencedetect" then
-    --     print(msg.prefix)
-    -- end
-    -- if msg.prefix == "silencedetect" then
-    --     print(msg.text)
-    -- end
-    if msg.prefix == "ffmpeg" then
-        print(msg.text)
+    -- message must be from ffmpeg
+    if msg.prefix ~= "ffmpeg" then
+        return
+    end
+
+    -- message must be from silencedetect filter
+    if string.sub(msg.text, 1, 13) ~= "silencedetect" then
+        return
     end
 
 
-    -- if string.find(msg.text, "silence_start") and detected_silence == false then
-    --     detected_silence = true
-    --     mp.set_property("speed", original_speed * 5)
-    --     print("silence_start")
-    -- elseif string.find(msg.text, "silence_end") and detected_silence then
-    --     detected_silence = false
-    --     mp.set_property("speed", original_speed)
-    --     print("silence_end")
-    -- end
+    if string.find(msg.text, "silence_start") and detected_silence == false then
+        detected_silence = true
+        mp.set_property("speed", original_speed * 10)
+        print("silence_start")
+    elseif string.find(msg.text, "silence_end") and detected_silence then
+        detected_silence = false
+        mp.set_property("speed", original_speed)
+        print("silence_end")
+    end
 end
 
 function toggle_filters()
