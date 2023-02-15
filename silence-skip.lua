@@ -38,15 +38,15 @@ function toggle_filters()
     -- mp.command("af toggle lavfi=[" .. compression_filter .. "]")
 
     -- local message = ""
-    -- if string.find(mp.get_property("af"), "compand") then
-    --     message = message .. " compression on"
-    -- else
-    --     message = message .. " compression off"
-    -- end
+    -- -- if string.find(mp.get_property("af"), "compand") then
+    -- --     message = message .. " compression on"
+    -- -- else
+    -- --     message = message .. " compression off"
+    -- -- end
 
     -- -- apply noise gate
-    -- local noise_gate_filter = "dynaudnorm=g=11"
-    -- mp.command("af toggle lavfi=[" .. noise_gate_filter .. "]")
+    local noise_gate_filter = "dynaudnorm=g=11"
+    mp.command("no-osd af toggle lavfi=[" .. noise_gate_filter .. "]")
 
     -- if string.find(mp.get_property("af"), "dynaudnorm") then
     --     message = message .. ", noise gate on"
@@ -55,22 +55,24 @@ function toggle_filters()
     -- end
 
     -- apply silencedetect
-    message = ""
-    mp.set_property("af", "silencedetect=n=-20dB:d=1")
+    -- message = ""
+    mp.command("no-osd af toggle lavfi=[silencedetect=n=-20dB:d=0.5]")
 
     if string.find(mp.get_property("af"), "silencedetect") then
-        message = message .. ", silence detect on"
+        -- message = message .. ", silence detect on"
         mp.enable_messages("debug")
         mp.register_event("log-message", message_handler)
         print("registered")
+        mp.osd_message("silence detect on")
     else
-        message = message .. ", silence detect off"
+        -- message = message .. ", silence detect off"
         mp.set_property("speed", original_speed)
         mp.unregister_event(message_handler)
         print("unregistered")
+        mp.osd_message("silence detect off")
     end
 
-    mp.osd_message(message)
+    -- mp.osd_message(message)
 end
 
 mp.add_key_binding("F2", "toggle_filters", toggle_filters)
