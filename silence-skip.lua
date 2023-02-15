@@ -3,12 +3,6 @@ local mp = require 'mp'
 local original_speed = mp.get_property("speed")
 local detected_silence = false
 
-function test()
-    -- this is a test
-
-    mp.osd_message("test")
-end
-
 function message_handler(msg)
     -- message must be from ffmpeg
     if msg.prefix ~= "ffmpeg" then
@@ -19,7 +13,6 @@ function message_handler(msg)
     if string.sub(msg.text, 1, 13) ~= "silencedetect" then
         return
     end
-
 
     if string.find(msg.text, "silence_start") and detected_silence == false then
         detected_silence = true
@@ -33,46 +26,24 @@ function message_handler(msg)
 end
 
 function toggle_filters()
-    -- -- apply compression
-    -- local compression_filter = "compand=0|0:1|1:-90/-900|-70/-70|-30/-9|0/-3:6:0:0:0"
-    -- mp.command("af toggle lavfi=[" .. compression_filter .. "]")
-
-    -- local message = ""
-    -- -- if string.find(mp.get_property("af"), "compand") then
-    -- --     message = message .. " compression on"
-    -- -- else
-    -- --     message = message .. " compression off"
-    -- -- end
-
-    -- -- apply noise gate
+    -- apply noise gate ffmpeg filter
     local noise_gate_filter = "dynaudnorm=g=11"
     mp.command("no-osd af toggle lavfi=[" .. noise_gate_filter .. "]")
 
-    -- if string.find(mp.get_property("af"), "dynaudnorm") then
-    --     message = message .. ", noise gate on"
-    -- else
-    --     message = message .. ", noise gate off"
-    -- end
-
-    -- apply silencedetect
-    -- message = ""
+    -- apply silencedetect ffmpeg filter
     mp.command("no-osd af toggle lavfi=[silencedetect=n=-20dB:d=0.5]")
 
     if string.find(mp.get_property("af"), "silencedetect") then
-        -- message = message .. ", silence detect on"
         mp.enable_messages("debug")
         mp.register_event("log-message", message_handler)
         print("registered")
         mp.osd_message("silence detect on")
     else
-        -- message = message .. ", silence detect off"
         mp.set_property("speed", original_speed)
         mp.unregister_event(message_handler)
         print("unregistered")
         mp.osd_message("silence detect off")
     end
-
-    -- mp.osd_message(message)
 end
 
 mp.add_key_binding("F2", "toggle_filters", toggle_filters)
